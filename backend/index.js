@@ -79,42 +79,53 @@ app.get('/api/recipes', async (req, res) => {
 //GET serached recipes
 app.get('/api/recipes/search', async (req, res) => {
   try {
-    const queryObj = { ...req.query };
+    const filters = {};
 
-    // Build the filter object dynamically
-    const filter = {};
-    if (queryObj.title) {
-      filter.title = { $regex: queryObj.title, $options: 'i' };
-    }
-    if (queryObj.cuisine) {
-      filter.cuisine = queryObj.cuisine;
-    }
+    const operatorMap = {
+      '=': '$eq',
+      '!=': '$ne',
+      '>': '$gt',
+      '>=': '$gte',
+      '<': '$lt',
+      '<=': '$lte',
+  };
 
-    // Support comparisons for calories, total_time, rating
-    ['calories', 'total_time', 'rating'].forEach(field => {
-      const value = queryObj[field];
-      if (value) {
-        let opMatch = value.match(/^(<=|>=|=)(\d+)$/);
-        if (opMatch) {
-          const op = opMatch[1];
-          const num = Number(opMatch[2]);
-          if (op === '<=') {
-            filter[field] = { $lte: num };
-          } else if (op === '>=') {
-            filter[field] = { $gte: num };
-          } else if (op === '=') {
-            filter[field] = { $eq: num };
-          }
-        } else if (!isNaN(value)) {
-          filter[field] = Number(value);
+
+    Object.entries(req.query).forEach(([key, value]) => {
+      const decodedKey = decodeURIComponent(key)
+      const decodedValue = decodeURIComponent(value)
+      console.log(decodedValue)
+
+      if (decodedValue.includes(',')) {
+        // Handle range queries (e.g., calories=100,200)
+        const [min, max] = value.split(',').map(Number);
+        filters[decodedKey] = { $gte: min, $lte: max };
+      } else {
+        // Handle specific operators (e.g., calories<=400)
+        const operator = Object.keys(operatorMap).find(op => decodedKey.endsWith(op));
+        console.log(operator)
+      
+        if (operator) {
+          const field = decodedKey.slice(0, -operator.length);
+          const numberValue = parseFloat(decodedValue);
+          filters[field] = { [operatorMap[operator]]: numberValue };
+        } else {
+          // Default to exact match if no operator is specified
+          filters[decodedKey] = decodedValue;
         }
       }
     });
 
-    const recipes = await db.collection('recipes').find(filter).toArray();
-    res.json({ data: recipes });
+    console.log(filters)
+
+    // Fetch filtered recipes
+    const recipes = await db.collection('recipes').find(filters).toArray();
+
+    // Return the filtered recipes
+    res.json(recipes);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'An error occurred while fetching recipes' });
   }
 });
+
