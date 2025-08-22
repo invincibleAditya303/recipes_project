@@ -1,4 +1,4 @@
 GET http://localhost:5000/api/recipes?page=1&limit=10
 ###
 
-GET http://localhost:5000/api/recipes/search?calories%3C%3D=400&rating%3E%3D=4.5&title=pie
+GET http://localhost:5000/api/recipes/search?calories[gte]=400&rating[gte]=4.5&title=pie

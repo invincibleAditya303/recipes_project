@@ -1,10 +1,11 @@
 const express = require('express')
 const app = express()
 const fs = require('fs')
-const path = require('path')
+const cors = require('cors')
 const PORT = process.env.PORT || 5000
 
 app.use(express.json())
+app.use(cors())
 
 require('dotenv').config()
 
@@ -102,7 +103,7 @@ app.get('/api/recipes/search', async (req, res) => {
         filters[decodedKey] = { $gte: min, $lte: max };
       } else {
         // Handle specific operators (e.g., calories<=400)
-        const operator = Object.keys(operatorMap).find(op => decodedKey.endsWith(op));
+        const operator = Object.values(operatorMap).find(op => decodedKey.endsWith(op.slice(1, op.length)));
         console.log(operator)
       
         if (operator) {
