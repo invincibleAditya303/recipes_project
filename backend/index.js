@@ -84,43 +84,67 @@ app.get('/api/recipes/search', async (req, res) => {
 
     const operatorMap = {
       '=': '$eq',
-      '!=': '$ne',
-      '>': '$gt',
-      '>=': '$gte',
-      '<': '$lt',
-      '<=': '$lte',
-  };
+      'ne': '$ne',
+      'gt': '$gt',
+      'gte': '$gte',
+      'lt': '$lt',
+      'lte': '$lte',
+    };
 
 
     Object.entries(req.query).forEach(([key, value]) => {
       const decodedKey = decodeURIComponent(key)
       const decodedValue = decodeURIComponent(value)
-      console.log(decodedValue)
 
-      if (decodedValue.includes(',')) {
-        // Handle range queries (e.g., calories=100,200)
-        const [min, max] = value.split(',').map(Number);
-        filters[decodedKey] = { $gte: min, $lte: max };
-      } else {
-        // Handle specific operators (e.g., calories<=400)
-        const operator = Object.values(operatorMap).find(op => decodedKey.endsWith(op.slice(1, op.length)));
-        console.log(operator)
-      
-        if (operator) {
-          const field = decodedKey.slice(0, -operator.length);
-          const numberValue = parseFloat(decodedValue);
-          filters[field] = { [operatorMap[operator]]: numberValue };
+    if (key === 'title') {
+        filters.title = { $regex: new RegExp(value, 'i') };
+    } else {
+        if (decodedValue.includes(',')) {
+          // Handle range queries (e.g., calories=100,200)
+          const [min, max] = value.split(',').map(Number);
+          filters[decodedKey] = { $gte: min, $lte: max };
         } else {
-          // Default to exact match if no operator is specified
-          filters[decodedKey] = decodedValue;
+          // Handle specific operators (e.g., calories<=400)
+          const operator = Object.keys(operatorMap).find(op => decodedKey.endsWith(`[${op}]`));
+        
+          if (operator) {
+            const operatorLength = operator.length + 2
+            const field = decodedKey.slice(0, decodedKey.length-operatorLength);
+            const numberValue = parseFloat(decodedValue);
+
+            if (field === "calories") {
+              filters.$expr = {
+                [operatorMap[operator]]: [
+                  {
+                    $toInt: {
+                      $trim: {
+                        input: `$nutrients.${field}`,
+                        chars: " kcal"
+                      }
+                    }
+                  },
+                  numberValue
+                ]
+            };
+            } else {
+            filters[field] = { [operatorMap[operator]]: numberValue };
+            }
+          } else {
+            // Default to exact match if no operator is specified
+            filters[decodedKey] = decodedValue;
+          }
         }
-      }
+      } 
     });
 
-    console.log(filters)
+    console.dir(filters, { depth: null, colors: true })
 
     // Fetch filtered recipes
-    const recipes = await db.collection('recipes').find(filters).toArray();
+    const cursor = db.collection('recipes').find(filters);
+    const recipes = [];
+    for await (const recipe of cursor) {
+      recipes.push(recipe);
+    }
 
     // Return the filtered recipes
     res.json(recipes);
