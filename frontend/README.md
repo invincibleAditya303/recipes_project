@@ -6,12 +6,7 @@
 - [Tech Stack](#tech-stack)  
 - [Features](#features)  
 - [Setup & Installation](#setup--installation)  
-- [API Endpoints](#api-endpoints)  
-- [Frontend Usage](#frontend-usage)  
-- [Testing](#testing)  
-- [Project Structure](#project-structure)  
-- [Future Improvements](#future-improvements)  
-- [License & Credits](#license--credits)  
+- [API Endpoints](#api-endpoints)   
 
 ---
 
@@ -45,7 +40,8 @@ This project processes a JSON dataset of recipes, stores them in a database, exp
   - Sortable table view
   - Right-drawer detail view
   - Column-level filters
-  - Star-rated UI (`react-rating-stars-component`)
+  - Star-rated UI (`@mui/material/Rating<img width="1366" height="683" alt="Screenshot 2025-09-10 231720" src="https://github.com/user-attachments/assets/070c01d4-c39e-4884-aa7f-a02cea57736d" />
+`)
   - Graceful empty-state messaging
 
 ---
@@ -82,7 +78,7 @@ Returns:
 {
   "page": 1,
   "limit": 10,
-  "total": 8450,
+  "total": 8451,
   "data": [ /* recipe objects */ ]
 }
 
