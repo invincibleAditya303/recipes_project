@@ -43,6 +43,8 @@ This project processes a JSON dataset of recipes, stores them in a database, exp
   - Star-rated UI (`@mui/material/Rating<img width="1366" height="683" alt="Screenshot 2025-09-10 231720" src="https://github.com/user-attachments/assets/070c01d4-c39e-4884-aa7f-a02cea57736d" />
 `)
   - Graceful empty-state messaging
+ 
+<img width="1366" height="683" alt="Screenshot 2025-09-10 231720" src="https://github.com/user-attachments/assets/d61850f6-df88-41f9-bbd2-40fe9a40d944" />
 
 ---
 
