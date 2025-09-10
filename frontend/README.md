@@ -1,3 +1,101 @@
+# Recipe Collection Display
+
+## Table of Contents
+
+- [Description](#description)  
+- [Tech Stack](#tech-stack)  
+- [Features](#features)  
+- [Setup & Installation](#setup--installation)  
+- [API Endpoints](#api-endpoints)  
+- [Frontend Usage](#frontend-usage)  
+- [Testing](#testing)  
+- [Project Structure](#project-structure)  
+- [Future Improvements](#future-improvements)  
+- [License & Credits](#license--credits)  
+
+---
+
+## Description
+
+This project processes a JSON dataset of recipes, stores them in a database, exposes a RESTful API for retrieving and searching recipes, and delivers a React-based frontend to browse and filter recipes intuitively.
+
+---
+
+## Tech Stack
+
+| Layer       | Technology              | Purpose                                                        |
+|-------------|-------------------------|----------------------------------------------------------------|
+| Backend     | Node.js + Express       | Server-side API and logic                                      |
+| Frontend    | React                   | Interactive UI for listing, filtering, and viewing recipes     |
+| Database    | MongoDB                 | Document-based storage of recipes                              |
+| Styling     | Tailwind CSS (via CDN)  | Consistent, utility-based styling                              |
+| HTTP Clients | Axios                  | Fetching data from REST endpoints                              |
+| Components  | Material-UI, react-rating-stars-component | Table display, drawers, star ratings             |
+
+---
+
+## Features
+
+- JSON parsing with conversion of invalid numeric fields (`NaN`) to `null`
+- Database insertion of structured recipe data
+- REST API with:
+  - Paginated listing sorted by rating
+  - Search endpoint with filters (title, cuisine, total_time, rating, calories)
+- React frontend with:
+  - Sortable table view
+  - Right-drawer detail view
+  - Column-level filters
+  - Star-rated UI (`react-rating-stars-component`)
+  - Graceful empty-state messaging
+
+---
+
+## Database Connection URI
+
+```env
+# MongoDB connection string
+MONGODB_URI="mongodb://<username>:<password>@localhost:27017/recipes_db"
+
+## Setup & Installation
+
+### Backend
+
+```bash
+cd backend
+npm install
+# Ensure MongoDB is running
+npm run seed          # Parses JSON and populates the database
+npm start             # Launches the API server
+
+### Frontend
+
+cd frontend
+npm install
+npm start             # Runs the React app (default: http://localhost:3000)
+
+### API Endpoints checking Sample
+
+# Get Recipes (Paginated & Sorted)
+
+GET /api/recipes?page=1&limit=10
+Returns:
+{
+  "page": 1,
+  "limit": 10,
+  "total": 8450,
+  "data": [ /* recipe objects */ ]
+}
+
+# Search Recipes(filterable)
+
+GET /api/recipes/search?title=pie&rating=>=4.5&total_time<=120
+Returns:
+  {
+  "data": [ /* filtered recipe objects */ ]
+}
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
